@@ -33,22 +33,49 @@
 class TwoWire : public Stream
 {
   private:
-    static uint8_t rxBuffer[];
-    static uint8_t rxBufferIndex;
-    static uint8_t rxBufferLength;
+    int bufferLength;
+    uint8_t* rxBuffer;
+    uint8_t rxBufferIndex;
+    uint8_t rxBufferLength;
 
-    static uint8_t txAddress;
-    static uint8_t txBuffer[];
-    static uint8_t txBufferIndex;
-    static uint8_t txBufferLength;
+    uint8_t txAddress;
+    uint8_t* txBuffer;
+    uint8_t txBufferIndex;
+    uint8_t txBufferLength;
 
-    static uint8_t transmitting;
-    static void (*user_onRequest)(void);
-    static void (*user_onReceive)(int);
-    static void onRequestService(void);
-    static void onReceiveService(uint8_t*, int);
+    uint8_t transmitting;
+    void (*user_onRequest)(void);
+    void (*user_onReceive)(int);
+    void onRequestService(void);
+    void onReceiveService(uint8_t*, int);
+    void setAddress();
+    void (*tw_init)(void);
+    void (*tw_disable)(void);
+    void (*tw_setAddress)(uint8_t);
+    void (*tw_setFrequency)(uint32_t);
+    uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t);
+    uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
+    uint8_t (*tw_transmit)(const uint8_t*, uint8_t);
+    void (*tw_attachSlaveRxEvent)( void (*)(uint8_t*, int) );
+    void (*tw_attachSlaveTxEvent)( void (*)(void) );
+    void (*tw_reply)(uint8_t);
+    void (*tw_stop)(void);
+    void (*tw_releaseBus)(void);
   public:
-    TwoWire();
+    TwoWire(int bufferLength,
+            void (*tw_init)(void),
+            void (*tw_disable)(void),
+            void (*tw_setAddress)(uint8_t),
+            void (*tw_setFrequency)(uint32_t),
+            uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t),
+            uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t),
+            uint8_t (*tw_transmit)(const uint8_t*, uint8_t),
+            void (*tw_attachSlaveRxEvent)( void (*)(uint8_t*, int) ),
+            void (*tw_attachSlaveTxEvent)( void (*)(void) ),
+            void (*tw_reply)(uint8_t),
+            void (*tw_stop)(void),
+            void (*twi_releaseBus)(void));
+    ~TwoWire();
     void begin();
     void begin(uint8_t);
     void begin(int);
