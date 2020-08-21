@@ -36,8 +36,17 @@ TwoWire Wire1 = TwoWire(TWI1_BUFFER_SIZE,
                         twi_readFrom1,
                         twi_writeTo1,
                         twi_transmit1,
-                        twi_attachSlaveRxEvent1,
-                        twi_attachSlaveTxEvent1,
                         twi_reply1,
                         twi_stop1,
                         twi_releaseBus1);
+
+void onSlaveTransmit1() {
+  Wire1.onRequestService();
+}
+
+void onSlaveReceive1(uint8_t* v, int len) {
+  Wire1.onReceiveService(v, len);
+}
+
+void (*twi_onSlaveTransmit1)(void) = onSlaveTransmit1;
+void (*twi_onSlaveReceive1)(uint8_t*, int) = onSlaveReceive1;

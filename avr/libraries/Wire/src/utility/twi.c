@@ -43,8 +43,8 @@ static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop; // should the transaction end with a stop
 static volatile uint8_t twi_inRepStart; // in the middle of a repeated start
 
-static void (*twi_onSlaveTransmit)(void);
-static void (*twi_onSlaveReceive)(uint8_t*, int);
+// static void (*twi_onSlaveTransmit)(void);
+// static void (*twi_onSlaveReceive)(uint8_t*, int);
 
 static uint8_t twi_masterBuffer[TWI_BUFFER_SIZE];
 static volatile uint8_t twi_masterBufferIndex;
@@ -320,28 +320,6 @@ uint8_t twi_transmit(const uint8_t* data, uint8_t length)
   twi_txBufferLength += length;
 
   return 0;
-}
-
-/* 
- * Function twi_attachSlaveRxEvent
- * Desc     sets function called before a slave read operation
- * Input    function: callback function to use
- * Output   none
- */
-void twi_attachSlaveRxEvent( void (*function)(uint8_t*, int) )
-{
-  twi_onSlaveReceive = function;
-}
-
-/* 
- * Function twi_attachSlaveTxEvent
- * Desc     sets function called before a slave write operation
- * Input    function: callback function to use
- * Output   none
- */
-void twi_attachSlaveTxEvent( void (*function)(void) )
-{
-  twi_onSlaveTransmit = function;
 }
 
 /* 

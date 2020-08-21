@@ -39,8 +39,6 @@ TwoWire::TwoWire(int bufferLength,
                  uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t),
                  uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t),
                  uint8_t (*tw_transmit)(const uint8_t*, uint8_t),
-                 void (*tw_attachSlaveRxEvent)( void (*)(uint8_t*, int) ),
-                 void (*tw_attachSlaveTxEvent)( void (*)(void) ),
                  void (*tw_reply)(uint8_t),
                  void (*tw_stop)(void),
                  void (*tw_releaseBus)(void))
@@ -63,8 +61,6 @@ TwoWire::TwoWire(int bufferLength,
   this->tw_readFrom = tw_readFrom;
   this->tw_writeTo = tw_writeTo;
   this->tw_transmit = tw_transmit;
-  this->tw_attachSlaveRxEvent = tw_attachSlaveRxEvent;
-  this->tw_attachSlaveTxEvent = tw_attachSlaveTxEvent;
   this->tw_reply = tw_reply;
   this->tw_stop = tw_stop;
   this->tw_releaseBus = tw_releaseBus;
@@ -87,8 +83,6 @@ void TwoWire::begin(void)
   txBufferLength = 0;
 
   tw_init();
-  // tw_attachSlaveTxEvent(onRequestService); // default callback must exist
-  // tw_attachSlaveRxEvent(onReceiveService); // default callback must exist
 }
 
 void TwoWire::begin(uint8_t address)
@@ -361,8 +355,17 @@ TwoWire Wire = TwoWire(TWI_BUFFER_SIZE,
                        twi_readFrom,
                        twi_writeTo,
                        twi_transmit,
-                       twi_attachSlaveRxEvent,
-                       twi_attachSlaveTxEvent,
                        twi_reply,
                        twi_stop,
                        twi_releaseBus);
+
+void onSlaveTransmit() {
+  Wire.onRequestService();
+}
+
+void onSlaveReceive(uint8_t* v, int len) {
+  Wire.onReceiveService(v, len);
+}
+
+void (*twi_onSlaveTransmit)(void) = onSlaveTransmit;
+void (*twi_onSlaveReceive)(uint8_t*, int) = onSlaveReceive;

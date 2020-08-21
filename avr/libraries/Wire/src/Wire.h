@@ -46,8 +46,6 @@ class TwoWire : public Stream
     uint8_t transmitting;
     void (*user_onRequest)(void);
     void (*user_onReceive)(int);
-    void onRequestService(void);
-    void onReceiveService(uint8_t*, int);
     void setAddress();
     void (*tw_init)(void);
     void (*tw_disable)(void);
@@ -56,8 +54,6 @@ class TwoWire : public Stream
     uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t);
     uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
     uint8_t (*tw_transmit)(const uint8_t*, uint8_t);
-    void (*tw_attachSlaveRxEvent)( void (*)(uint8_t*, int) );
-    void (*tw_attachSlaveTxEvent)( void (*)(void) );
     void (*tw_reply)(uint8_t);
     void (*tw_stop)(void);
     void (*tw_releaseBus)(void);
@@ -70,8 +66,6 @@ class TwoWire : public Stream
             uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t),
             uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t),
             uint8_t (*tw_transmit)(const uint8_t*, uint8_t),
-            void (*tw_attachSlaveRxEvent)( void (*)(uint8_t*, int) ),
-            void (*tw_attachSlaveTxEvent)( void (*)(void) ),
             void (*tw_reply)(uint8_t),
             void (*tw_stop)(void),
             void (*twi_releaseBus)(void));
@@ -98,6 +92,9 @@ class TwoWire : public Stream
     virtual void flush(void);
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
+
+    void onRequestService(void);
+    void onReceiveService(uint8_t*, int);
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }

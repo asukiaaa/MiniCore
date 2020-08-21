@@ -49,5 +49,8 @@
   void twi_stop(void);
   void twi_releaseBus(void);
 
+  extern void (*twi_onSlaveTransmit)(void);
+  extern void (*twi_onSlaveReceive)(uint8_t*, int);
+
 #endif
 
