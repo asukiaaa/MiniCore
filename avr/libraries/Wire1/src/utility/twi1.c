@@ -43,9 +43,6 @@ static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop; // should the transaction end with a stop
 static volatile uint8_t twi_inRepStart; // in the middle of a repeated start
 
-// static void (*twi_onSlaveTransmit)(void);
-// static void (*twi_onSlaveReceive)(uint8_t*, int);
-
 static uint8_t twi_masterBuffer[TWI1_BUFFER_SIZE];
 static volatile uint8_t twi_masterBufferIndex;
 static volatile uint8_t twi_masterBufferLength;
