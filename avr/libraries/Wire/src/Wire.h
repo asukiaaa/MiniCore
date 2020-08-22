@@ -25,7 +25,7 @@
 #include <Arduino.h>
 #include <inttypes.h>
 #include "Stream.h"
-
+#include "utility/twi.h"
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -42,33 +42,14 @@ class TwoWire : public Stream
     uint8_t* txBuffer;
     uint8_t txBufferIndex;
     uint8_t txBufferLength;
+    Twi* twi;
 
     uint8_t transmitting;
     void (*user_onRequest)(void);
     void (*user_onReceive)(int);
     void setAddress();
-    void (*tw_init)(void);
-    void (*tw_disable)(void);
-    void (*tw_setAddress)(uint8_t);
-    void (*tw_setFrequency)(uint32_t);
-    uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t);
-    uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
-    uint8_t (*tw_transmit)(const uint8_t*, uint8_t);
-    void (*tw_reply)(uint8_t);
-    void (*tw_stop)(void);
-    void (*tw_releaseBus)(void);
   public:
-    TwoWire(int bufferLength,
-            void (*tw_init)(void),
-            void (*tw_disable)(void),
-            void (*tw_setAddress)(uint8_t),
-            void (*tw_setFrequency)(uint32_t),
-            uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t),
-            uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t),
-            uint8_t (*tw_transmit)(const uint8_t*, uint8_t),
-            void (*tw_reply)(uint8_t),
-            void (*tw_stop)(void),
-            void (*twi_releaseBus)(void));
+    TwoWire(int bufferLength, Twi* twi);
     ~TwoWire();
     void begin();
     void begin(uint8_t);

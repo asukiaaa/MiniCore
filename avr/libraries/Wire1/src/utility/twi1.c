@@ -43,6 +43,9 @@ static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop; // should the transaction end with a stop
 static volatile uint8_t twi_inRepStart; // in the middle of a repeated start
 
+static void (*twi_onSlaveTransmit)(void);
+static void (*twi_onSlaveReceive)(uint8_t*, int);
+
 static uint8_t twi_masterBuffer[TWI1_BUFFER_SIZE];
 static volatile uint8_t twi_masterBufferIndex;
 static volatile uint8_t twi_masterBufferLength;
@@ -320,6 +323,28 @@ uint8_t twi_transmit1(const uint8_t* data, uint8_t length)
 }
 
 /* 
+ * Function twi_attachSlaveRxEvent
+ * Desc     sets function called before a slave read operation
+ * Input    function: callback function to use
+ * Output   none
+ */
+void twi_attachSlaveRxEvent1( void (*function)(uint8_t*, int) )
+{
+  twi_onSlaveReceive = function;
+}
+
+/* 
+ * Function twi_attachSlaveTxEvent
+ * Desc     sets function called before a slave write operation
+ * Input    function: callback function to use
+ * Output   none
+ */
+void twi_attachSlaveTxEvent1( void (*function)(void) )
+{
+  twi_onSlaveTransmit = function;
+}
+
+/* 
  * Function twi_reply
  * Desc     sends byte or readys receive line
  * Input    ack: byte indicating to ack or to nack
@@ -480,7 +505,7 @@ ISR(TWI1_vect)
         twi_rxBuffer[twi_rxBufferIndex] = '\0';
       }
       // callback to user defined callback
-      twi_onSlaveReceive1(twi_rxBuffer, twi_rxBufferIndex);
+      twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
       // since we submit rx buffer to "wire" library, we can reset it
       twi_rxBufferIndex = 0;
       break;
@@ -501,7 +526,7 @@ ISR(TWI1_vect)
       twi_txBufferLength = 0;
       // request for txBuffer to be filled and length to be set
       // note: user must call twi_transmit(bytes, length) to do this
-      twi_onSlaveTransmit1();
+      twi_onSlaveTransmit();
       // if they didn't change buffer & length, initialize it
       if(0 == twi_txBufferLength){
         twi_txBufferLength = 1;

@@ -35,22 +35,44 @@
   #define TWI_MTX   2
   #define TWI_SRX   3
   #define TWI_STX   4
-  
-  void twi_init(void);
-  void twi_disable(void);
-  void twi_setAddress(uint8_t);
-  void twi_setFrequency(uint32_t);
-  uint8_t twi_readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
-  uint8_t twi_writeTo(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
-  uint8_t twi_transmit(const uint8_t*, uint8_t);
-  void twi_attachSlaveRxEvent( void (*)(uint8_t*, int) );
-  void twi_attachSlaveTxEvent( void (*)(void) );
-  void twi_reply(uint8_t);
-  void twi_stop(void);
-  void twi_releaseBus(void);
 
-  extern void (*twi_onSlaveTransmit)(void);
-  extern void (*twi_onSlaveReceive)(uint8_t*, int);
+class Twi {
+ public:
+  Twi(int bufferSize);
+  ~Twi();
+  void begin();
+  void disable();
+  void setAddress(uint8_t address);
+  void setFrequency(uint32_t frequency);
+  uint8_t readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
+  uint8_t writeTo(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
+  uint8_t ransmit(const uint8_t*, uint8_t);
+  void attachSlaveRxEvent( void (*)(uint8_t*, int) );
+  void attachSlaveTxEvent( void (*)(void) );
+  void reply(uint8_t);
+  void stop(void);
+  void releaseBus(void);
+  uint8_t transmit(const uint8_t* data, uint8_t length);
+  uint8_t state;
+  uint8_t slarw;
+  uint8_t sendStop; // should the transaction end with a stop
+  uint8_t inRepStart; // in the middle of a repeated start
+  uint8_t *masterBuffer;
+  uint8_t masterBufferIndex;
+  uint8_t masterBufferLength;
+  uint8_t *txBuffer;
+  uint8_t txBufferIndex;
+  uint8_t txBufferLength;
+  uint8_t *rxBuffer;
+  uint8_t rxBufferIndex;
+  uint8_t error;
+  int bufferSize;
+};
+
+extern void (*twi0_onSlaveTransmit)(void);
+extern void (*twi0_onSlaveReceive)(uint8_t*, int);
+
+extern Twi twi0;
 
 #endif
 

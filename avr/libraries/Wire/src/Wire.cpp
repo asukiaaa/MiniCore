@@ -24,24 +24,13 @@ extern "C" {
   #include <stdlib.h>
   #include <string.h>
   #include <inttypes.h>
-  #include "utility/twi.h"
 }
 
 #include "Wire.h"
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-TwoWire::TwoWire(int bufferLength,
-                 void (*tw_init)(void),
-                 void (*tw_disable)(void),
-                 void (*tw_setAddress)(uint8_t),
-                 void (*tw_setFrequency)(uint32_t),
-                 uint8_t (*tw_readFrom)(uint8_t, uint8_t*, uint8_t, uint8_t),
-                 uint8_t (*tw_writeTo)(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t),
-                 uint8_t (*tw_transmit)(const uint8_t*, uint8_t),
-                 void (*tw_reply)(uint8_t),
-                 void (*tw_stop)(void),
-                 void (*tw_releaseBus)(void))
+TwoWire::TwoWire(int bufferLength, Twi* twi)
 {
   this->bufferLength = bufferLength;
   rxBuffer = new uint8_t[bufferLength];
@@ -54,16 +43,7 @@ TwoWire::TwoWire(int bufferLength,
   txBufferLength = 0;
 
   transmitting = 0;
-  this->tw_init = tw_init;
-  this->tw_disable = tw_disable;
-  this->tw_setAddress = tw_setAddress;
-  this->tw_setFrequency = tw_setFrequency;
-  this->tw_readFrom = tw_readFrom;
-  this->tw_writeTo = tw_writeTo;
-  this->tw_transmit = tw_transmit;
-  this->tw_reply = tw_reply;
-  this->tw_stop = tw_stop;
-  this->tw_releaseBus = tw_releaseBus;
+  this->twi = twi;
 }
 
 TwoWire::~TwoWire()
@@ -82,13 +62,13 @@ void TwoWire::begin(void)
   txBufferIndex = 0;
   txBufferLength = 0;
 
-  tw_init();
+  twi->begin();
 }
 
 void TwoWire::begin(uint8_t address)
 {
   begin();
-  tw_setAddress(address);
+  twi->setAddress(address);
 }
 
 void TwoWire::begin(int address)
@@ -98,12 +78,12 @@ void TwoWire::begin(int address)
 
 void TwoWire::end(void)
 {
-  tw_disable();
+  twi->disable();
 }
 
 void TwoWire::setClock(uint32_t clock)
 {
-  tw_setFrequency(clock);
+  twi->setFrequency(clock);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
@@ -131,7 +111,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
     quantity = bufferLength;
   }
   // perform blocking read into buffer
-  uint8_t read = tw_readFrom(address, rxBuffer, quantity, sendStop);
+  uint8_t read = twi->readFrom(address, rxBuffer, quantity, sendStop);
   // set rx buffer iterator vars
   rxBufferIndex = 0;
   rxBufferLength = read;
@@ -190,7 +170,7 @@ void TwoWire::beginTransmission(int address)
 uint8_t TwoWire::endTransmission(uint8_t sendStop)
 {
   // transmit buffer (blocking)
-  uint8_t ret = tw_writeTo(txAddress, txBuffer, txBufferLength, 1, sendStop);
+  uint8_t ret = twi->writeTo(txAddress, txBuffer, txBufferLength, 1, sendStop);
   // reset tx buffer iterator vars
   txBufferIndex = 0;
   txBufferLength = 0;
@@ -227,7 +207,7 @@ size_t TwoWire::write(uint8_t data)
   }else{
   // in slave send mode
     // reply to master
-    tw_transmit(&data, 1);
+    twi->transmit(&data, 1);
   }
   return 1;
 }
@@ -245,7 +225,7 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
   }else{
   // in slave send mode
     // reply to master
-    tw_transmit(data, quantity);
+    twi->transmit(data, quantity);
   }
   return quantity;
 }
@@ -347,17 +327,7 @@ void TwoWire::onRequest( void (*function)(void) )
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-TwoWire Wire = TwoWire(TWI_BUFFER_SIZE,
-                       twi_init,
-                       twi_disable,
-                       twi_setAddress,
-                       twi_setFrequency,
-                       twi_readFrom,
-                       twi_writeTo,
-                       twi_transmit,
-                       twi_reply,
-                       twi_stop,
-                       twi_releaseBus);
+TwoWire Wire = TwoWire(TWI_BUFFER_SIZE, &twi0);
 
 void onSlaveTransmit() {
   Wire.onRequestService();
@@ -367,5 +337,5 @@ void onSlaveReceive(uint8_t* v, int len) {
   Wire.onReceiveService(v, len);
 }
 
-void (*twi_onSlaveTransmit)(void) = onSlaveTransmit;
-void (*twi_onSlaveReceive)(uint8_t*, int) = onSlaveReceive;
+void (*twi0_onSlaveTransmit)(void) = onSlaveTransmit;
+void (*twi0_onSlaveReceive)(uint8_t*, int) = onSlaveReceive;

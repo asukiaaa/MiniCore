@@ -43,12 +43,11 @@
   uint8_t twi_readFrom1(uint8_t, uint8_t*, uint8_t, uint8_t);
   uint8_t twi_writeTo1(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
   uint8_t twi_transmit1(const uint8_t*, uint8_t);
+  void twi_attachSlaveRxEvent1( void (*)(uint8_t*, int) );
+  void twi_attachSlaveTxEvent1( void (*)(void) );
   void twi_reply1(uint8_t);
   void twi_stop1(void);
   void twi_releaseBus1(void);
-
-  extern void (*twi_onSlaveTransmit1)(void);
-  extern void (*twi_onSlaveReceive1)(uint8_t*, int);
 
 #endif
 
