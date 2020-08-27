@@ -40,6 +40,7 @@
 
 Twi::Twi(int bufferSize)
 {
+  this->bufferSize = bufferSize;
   masterBuffer = new uint8_t[bufferSize];
   txBuffer = new uint8_t[bufferSize];
   rxBuffer = new uint8_t[bufferSize];
