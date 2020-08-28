@@ -86,5 +86,8 @@ class TwoWire : public Stream
 
 extern TwoWire Wire;
 
+#ifdef TWI1_vect
+extern TwoWire Wire1;
 #endif
 
+#endif

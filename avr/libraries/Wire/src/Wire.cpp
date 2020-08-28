@@ -329,13 +329,28 @@ void TwoWire::onRequest( void (*function)(void) )
 
 TwoWire Wire = TwoWire(TWI_BUFFER_SIZE, &twi0);
 
-void onSlaveTransmit() {
+void t0_onSlaveTransmit() {
   Wire.onRequestService();
 }
 
-void onSlaveReceive(uint8_t* v, int len) {
+void t0_onSlaveReceive(uint8_t* v, int len) {
   Wire.onReceiveService(v, len);
 }
 
-void (*twi0_onSlaveTransmit)(void) = onSlaveTransmit;
-void (*twi0_onSlaveReceive)(uint8_t*, int) = onSlaveReceive;
+void (*twi0_onSlaveTransmit)(void) = t0_onSlaveTransmit;
+void (*twi0_onSlaveReceive)(uint8_t*, int) = t0_onSlaveReceive;
+
+#ifdef TWI1_vect
+TwoWire Wire1 = TwoWire(TWI_BUFFER_SIZE, &twi1);
+
+void t1_onSlaveTransmit() {
+  Wire1.onRequestService();
+}
+
+void t1_onSlaveReceive(uint8_t* v, int len) {
+  Wire1.onReceiveService(v, len);
+}
+
+void (*twi1_onSlaveTransmit)(void) = t1_onSlaveTransmit;
+void (*twi1_onSlaveReceive)(uint8_t*, int) = t1_onSlaveReceive;
+#endif

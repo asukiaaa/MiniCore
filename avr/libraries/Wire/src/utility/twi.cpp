@@ -372,8 +372,8 @@ void Twi::releaseBus(void)
   state = TWI_READY;
 }
 
-void Twi::onInterrupt() {
-  switch (TW_STATUS) {
+void Twi::onInterrupt(void (*onSlaveTransmit)(void), void (*onSlaveReceive)(uint8_t*, int)) {
+  switch (*twsr & TW_STATUS_MASK) {
     // All Master
   case TW_START:     // sent start condition
   case TW_REP_START: // sent repeated start condition
@@ -479,7 +479,7 @@ void Twi::onInterrupt() {
         rxBuffer[rxBufferIndex] = '\0';
       }
       // callback to user defined callback
-      twi0_onSlaveReceive(rxBuffer, rxBufferIndex);
+      onSlaveReceive(rxBuffer, rxBufferIndex);
       // since we submit rx buffer to "wire" library, we can reset it
       rxBufferIndex = 0;
       break;
@@ -500,7 +500,7 @@ void Twi::onInterrupt() {
       txBufferLength = 0;
       // request for txBuffer to be filled and length to be set
       // note: user must call twi_transmit(bytes, length) to do this
-      twi0_onSlaveTransmit();
+      onSlaveTransmit();
       // if they didn't change buffer & length, initialize it
       if(0 == txBufferLength){
         txBufferLength = 1;
@@ -545,5 +545,19 @@ Twi twi0(TWI_BUFFER_SIZE,
 
 ISR(TWI_vect)
 {
-  twi0.onInterrupt();
+  twi0.onInterrupt(twi0_onSlaveTransmit, twi0_onSlaveReceive);
 }
+
+#ifdef TWI1_vect
+Twi twi1(TWI_BUFFER_SIZE,
+         &TWAR1,
+         &TWBR1,
+         &TWCR1,
+         &TWDR1,
+         &TWSR1);
+
+ISR(TWI1_vect)
+{
+  twi1.onInterrupt(twi1_onSlaveTransmit, twi1_onSlaveReceive);
+}
+#endif

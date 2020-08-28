@@ -58,7 +58,7 @@ class Twi {
   void stop(void);
   void releaseBus(void);
   uint8_t transmit(const uint8_t* data, uint8_t length);
-  void onInterrupt();
+  void onInterrupt(void (*onSlaveTransmit)(void), void (*onSlaveReceive)(uint8_t*, int));
 
  private:
   uint8_t state;
@@ -86,6 +86,13 @@ extern void (*twi0_onSlaveTransmit)(void);
 extern void (*twi0_onSlaveReceive)(uint8_t*, int);
 
 extern Twi twi0;
+
+#ifdef TWI1_vect
+extern void (*twi1_onSlaveTransmit)(void);
+extern void (*twi1_onSlaveReceive)(uint8_t*, int);
+
+extern Twi twi1;
+#endif
 
 #endif
 
