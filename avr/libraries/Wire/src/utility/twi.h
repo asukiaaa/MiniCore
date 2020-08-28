@@ -38,7 +38,12 @@
 
 class Twi {
  public:
-  Twi(int bufferSize);
+  Twi(int bufferSize,
+      volatile uint8_t* twar,
+      volatile uint8_t* twbr,
+      volatile uint8_t* twcr,
+      volatile uint8_t *twdr,
+      volatile uint8_t *twsr);
   ~Twi();
   void begin();
   void disable();
@@ -53,6 +58,9 @@ class Twi {
   void stop(void);
   void releaseBus(void);
   uint8_t transmit(const uint8_t* data, uint8_t length);
+  void onInterrupt();
+
+ private:
   uint8_t state;
   uint8_t slarw;
   uint8_t sendStop; // should the transaction end with a stop
@@ -67,6 +75,11 @@ class Twi {
   uint8_t rxBufferIndex;
   uint8_t error;
   int bufferSize;
+  volatile uint8_t* twar;
+  volatile uint8_t* twbr;
+  volatile uint8_t* twcr;
+  volatile uint8_t* twdr;
+  volatile uint8_t* twsr;
 };
 
 extern void (*twi0_onSlaveTransmit)(void);
