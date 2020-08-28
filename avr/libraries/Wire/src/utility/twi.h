@@ -39,6 +39,8 @@
 class Twi {
  public:
   Twi(int bufferSize,
+      int pinSda,
+      int pinScl,
       volatile uint8_t* twar,
       volatile uint8_t* twbr,
       volatile uint8_t* twcr,
@@ -61,6 +63,8 @@ class Twi {
   void onInterrupt(void (*onSlaveTransmit)(void), void (*onSlaveReceive)(uint8_t*, int));
 
  private:
+  int pinSda;
+  int pinScl;
   uint8_t state;
   uint8_t slarw;
   uint8_t sendStop; // should the transaction end with a stop

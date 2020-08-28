@@ -39,6 +39,8 @@
 #include "twi.h"
 
 Twi::Twi(int bufferSize,
+         int pinSda,
+         int pinScl,
          volatile uint8_t* twar,
          volatile uint8_t* twbr,
          volatile uint8_t* twcr,
@@ -50,6 +52,8 @@ Twi::Twi(int bufferSize,
   txBuffer = new uint8_t[bufferSize];
   rxBuffer = new uint8_t[bufferSize];
 
+  this->pinSda = pinSda;
+  this->pinScl = pinScl;
   this->twar = twar;
   this->twbr = twbr;
   this->twcr = twcr;
@@ -72,8 +76,8 @@ Twi::~Twi()
 void Twi::begin()
 {
   // activate internal pullups for twi.
-  digitalWrite(SDA, 1);
-  digitalWrite(SCL, 1);
+  digitalWrite(pinSda, 1);
+  digitalWrite(pinScl, 1);
 
   // initialize twi prescaler and bit rate
   cbi(*twsr, TWPS0);
@@ -537,6 +541,8 @@ void Twi::onInterrupt(void (*onSlaveTransmit)(void), void (*onSlaveReceive)(uint
 }
 
 Twi twi0(TWI_BUFFER_SIZE,
+         SDA,
+         SCL,
          &TWAR,
          &TWBR,
          &TWCR,
@@ -550,6 +556,8 @@ ISR(TWI_vect)
 
 #ifdef TWI1_vect
 Twi twi1(TWI_BUFFER_SIZE,
+         SDA1,
+         SCL1,
          &TWAR1,
          &TWBR1,
          &TWCR1,
