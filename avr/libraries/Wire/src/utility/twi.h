@@ -54,8 +54,6 @@ class Twi {
   uint8_t readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
   uint8_t writeTo(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
   uint8_t ransmit(const uint8_t*, uint8_t);
-  void attachSlaveRxEvent( void (*)(uint8_t*, int) );
-  void attachSlaveTxEvent( void (*)(void) );
   void reply(uint8_t);
   void stop(void);
   void releaseBus(void);
